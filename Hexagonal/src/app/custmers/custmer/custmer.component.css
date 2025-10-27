@@ -1,0 +1,28 @@
+.container {
+  padding: 20px;
+}
+
+.custmer-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.custmer-table th, .custmer-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.custmer-table th {
+  background-color: #f2f2f2;
+}
+
+.custmer-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+button {
+  padding: 5px 10px;
+  cursor: pointer;
+}

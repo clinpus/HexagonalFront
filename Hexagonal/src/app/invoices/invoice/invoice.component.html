@@ -1,0 +1,32 @@
+<div class="container">
+  <h2>Liste des Factures</h2>
+
+  <p *ngIf="invoices.length === 0">
+    Aucune facture trouvée. Veuillez vérifier la connexion à l'API.
+  </p>
+
+  <table *ngIf="invoices.length > 0" class="invoice-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Date d'Émission</th>
+        <th>Échéance</th>
+        <th>Total TTC</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let invoice of invoices">
+        <td>{{ invoice.id }}</td>
+        <td>{{ invoice.clientName }}</td> 
+        <td>{{ invoice.dateEmission | date: 'shortDate' }}</td>
+        <td>{{ invoice.dateEcheance | date: 'shortDate' }}</td>
+        <td>{{ invoice.totalTTC | currency: 'EUR' }}</td>
+        <td>
+          <button (click)="viewDetails(invoice.id)">Détails</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

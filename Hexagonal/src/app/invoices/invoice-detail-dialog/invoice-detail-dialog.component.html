@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Détails de la Facture #{{ data.id }}</h2>
+
+<mat-dialog-content>
+  <p><strong>Client :</strong> {{ data.clientName }}</p>
+  <p><strong>Numéro :</strong> {{ data.numero }}</p>
+  <p><strong>Date d'émission :</strong> {{ data.dateEmission | date }}</p>
+  <p><strong>Total TTC :</strong> {{ data.totalTTC | currency: 'EUR' }}</p>
+  <p><strong>Etat :</strong> {{ data.etat }}</p>
+
+  </mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Fermer</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="true">Éditer</button>
+</mat-dialog-actions>
