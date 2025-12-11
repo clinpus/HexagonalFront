@@ -48,8 +48,8 @@ jobs:
           # Paramètres pour le déploiement manuel :
           app_location: "" # Laissez vide
           api_location: ""
-          # CORRECTION FINALE : Utilisation de la variable d'environnement pour le chemin absolu
-          output_location: "${{ github.workspace }}/Hexagonal/dist/hexagonal/browser"
+          # CORRECTION FINALE : Chemin absolu écrit en dur pour contourner les problèmes de parsing SWA
+          output_location: "/home/runner/work/HexagonalFront/HexagonalFront/Hexagonal/dist/hexagonal/browser"
           skip_app_build: true # Crucial
           
   close_pull_request_job:
