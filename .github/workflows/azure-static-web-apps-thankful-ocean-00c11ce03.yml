@@ -1,39 +1,28 @@
 name: Azure Static Web Apps CI/CD
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
+# ... (Sections push, pull_request et jobs inchangées)
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    # ... (runs-on, name inchangés)
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true
-          lfs: false
+        # ... (with: inchangé)
 
       # ------------------------------------------------
       # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT
       # ------------------------------------------------
       - name: Setup Node 18
         uses: actions/setup-node@v3
-        with:
-          node-version: 18
+        # ... (with: node-version inchangé)
 
       - name: Install and Build Angular
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # CHANGEMENT CLÉ : La sortie est déplacée à la racine du dépôt (un niveau au-dessus de Hexagonal)
-          ./node_modules/.bin/ng build --output-path ../output_swa 
+          # CHANGEMENT CLÉ : Construire dans un chemin SIMPLE à l'intérieur de Hexagonal (pas de 'browser')
+          ./node_modules/.bin/ng build --output-path dist/final_output 
         working-directory: Hexagonal # Le répertoire de travail est toujours 'Hexagonal'
       # ------------------------------------------------
 
@@ -46,20 +35,10 @@ jobs:
           action: "upload"
           
           # Paramètres de déploiement final :
-          app_location: "" # Vide, car l'artefact est maintenant à la racine du dépôt
+          app_location: "Hexagonal" # Pointer vers le dossier source
           api_location: ""
-          # Le chemin de sortie est le nouveau dossier à la racine + le sous-dossier Angular
-          output_location: "output_swa/browser"
+          # Le chemin de sortie est relatif à l'app_location
+          output_location: "dist/final_output"
           skip_app_build: true # Crucial
           
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          action: "close"
+  # ... (Section close_pull_request_job inchangée)
