@@ -36,7 +36,13 @@ jobs:
           ./node_modules/.bin/ng build --output-path dist/hexagonal/browser
         working-directory: Hexagonal # Exécuter dans le répertoire du projet Angular
       # ------------------------------------------------
-
+      - name: Copy Artifact to Root
+        run: |
+          # Crée un dossier "swa-output" à la racine du dépôt (un niveau au-dessus de Hexagonal)
+          mkdir ../swa-output 
+          # Copie le contenu de la sortie Angular (dist/hexagonal/browser) vers le nouveau dossier racine
+          cp -r Hexagonal/dist/hexagonal/browser/. ../swa-output/
+      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -46,10 +52,10 @@ jobs:
           action: "upload"
           
           # Paramètres de chemin standard (l'output est RELATIF à l'app_location)
-          app_location: "Hexagonal" 
+          app_location: "" 
           api_location: ""
           # Le chemin d'artefact est relatif à "Hexagonal"
-          output_location: "dist/hexagonal/browser"
+          output_location: "swa-output"
           skip_app_build: true # Crucial : Le build manuel a déjà été fait
           
   close_pull_request_job:
@@ -63,3 +69,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           action: "close"
+
