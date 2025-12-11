@@ -2,6 +2,7 @@
   "routes": {
     "/": {},
     "/custmers": {},
+    "/home": {},
     "/invoices": {},
     "/login": {}
   }
