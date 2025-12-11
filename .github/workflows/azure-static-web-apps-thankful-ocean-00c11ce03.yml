@@ -31,6 +31,7 @@ jobs:
       - name: Install and Build Angular
         run: |
           npm install
+          chmod +x ./node_modules/.bin/ng
           ./node_modules/.bin/ng build --output-path ../output_angular
         working-directory: Hexagonal # Exécuter dans le répertoire du projet Angular (où est package.json)
       # ------------------------------------------------
@@ -60,4 +61,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           action: "close"
+
 
