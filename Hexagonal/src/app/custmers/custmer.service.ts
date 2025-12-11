@@ -1,26 +1,16 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'; // Pour les appels HTTP
+
 import { Observable } from 'rxjs'; // Pour gérer les requêtes asynchrones
-import { Custmer } from '../models/custmer';
+import { BaseService } from '../base-service';
+import { Injectable } from '@angular/core';
 
-@Injectable({
-  // 'root' rend le service disponible dans toute l'application (approche Standalone)
-  providedIn: 'root' 
+@Injectable({ // ⬅️ AJOUTEZ CE DÉCORATEUR
+  providedIn: 'root'
 })
-export class CustmerService {
-  // ATTENTION : Remplacez ceci par l'URL exacte de votre API .NET
-  private apiUrl = 'https://localhost:7147/api/custmers'; 
-
-  // Injection du HttpClient
-  constructor(private http: HttpClient) { }
-
-  /**
-   * Récupère la liste de toutes les factures depuis l'API.
-   * @returns Un Observable de type Custmer[]
-   */
-  getCustmers(): Observable<Custmer[]> {
-    return this.http.get<Custmer[]>(this.apiUrl);
+export class CustmerService extends BaseService {
+  
+  getAllCustomers(): Observable<any[]> {
+    // Appelle la méthode get() de la classe de base
+    return this.get<any[]>('custmers'); 
   }
 
-  // Ici, vous ajouteriez d'autres méthodes comme getCustmerById(id: number), createCustmer(), etc.
 }

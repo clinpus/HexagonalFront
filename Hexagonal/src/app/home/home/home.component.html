@@ -1,0 +1,22 @@
+<div class="home-container">
+  <div class="welcome-section">
+    <h1>{{ welcomeMessage }}</h1>
+    <h2>Bonjour, {{ currentUserName }} !</h2>
+    <p>Ceci est votre tableau de bord de l'Application Hexagonale.</p>
+  </div>
+
+  <div class="dashboard-metrics">
+    <div class="metric-card">
+      <h3>Commandes Totales</h3>
+      <p class="count">{{ totalOrdersCount }}</p>
+    </div>
+    
+    <div class="metric-card">
+      <h3>Accès Rapide</h3>
+      <ul>
+        <li><a routerLink="/invoices">Gérer les Factures</a></li>
+        <li><a routerLink="/users">Voir les Utilisateurs</a></li>
+      </ul>
+    </div>
+  </div>
+</div>

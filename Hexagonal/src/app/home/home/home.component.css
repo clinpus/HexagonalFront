@@ -1,0 +1,101 @@
+/* Conteneur principal */
+.home-container {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto; /* Centrer le contenu */
+    font-family: Arial, sans-serif;
+}
+
+/* Section de Bienvenue */
+.welcome-section {
+    background-color: #f4f7f6;
+    padding: 40px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 5px solid #007bff; /* Bande de couleur distinctive */
+}
+
+.welcome-section h1 {
+    color: #333;
+    margin-top: 0;
+    font-size: 2em;
+}
+
+.welcome-section h2 {
+    color: #007bff;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.welcome-section p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Métriques du Tableau de Bord */
+.dashboard-metrics {
+    display: grid;
+    /* Crée deux colonnes de taille égale */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 20px;
+}
+
+.metric-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px); /* Petit effet de survol */
+}
+
+.metric-card h3 {
+    color: #555;
+    margin-top: 0;
+    font-size: 1.2em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.count {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #28a745; /* Couleur verte pour les chiffres clés */
+}
+
+/* Styles pour les liens rapides */
+.metric-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.metric-card li {
+    margin-bottom: 8px;
+}
+
+.metric-card a {
+    text-decoration: none;
+    color: #007bff;
+    display: block;
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.metric-card a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Ajustement pour les petits écrans */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 20px;
+    }
+    .dashboard-metrics {
+        grid-template-columns: 1fr; /* Une seule colonne sur mobile */
+    }
+}

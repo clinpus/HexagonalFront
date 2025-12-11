@@ -1,0 +1,9 @@
+{
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/.*": true,
+        "**/dist": true
+        // L'expression "**/.*" exclut tous les dossiers et fichiers cachés 
+        // (ceux commençant par un point) partout dans votre projet.
+    }
+}

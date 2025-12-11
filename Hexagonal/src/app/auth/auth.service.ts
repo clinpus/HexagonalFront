@@ -1,6 +1,6 @@
 // Dans src/app/auth/auth.service.ts
 
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -17,7 +17,7 @@ export class AuthService {
   private router = inject(Router);
   
    // 1. Injecter le token d'identification de la plateforme
-  private platformId = inject(PLATFORM_ID); 
+  //private platformId = inject(PLATFORM_ID); 
   
   private apiUrl = 'https://localhost:7147/api/auth/'; // Endpoint .NET
   private readonly TOKEN_KEY = 'auth_token';
@@ -30,7 +30,7 @@ export class AuthService {
   // C'est ce que les autres composants (Navbar) vont souscrire
   public isLoggedIn$ = this.loggedInSubject.asObservable(); 
 
-  constructor() {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     // Vérifie le statut initial lors de l'initialisation du service
     if (isPlatformBrowser(this.platformId)) {
       this.checkLoginStatus(); 
@@ -46,9 +46,11 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
+
     return this.http.post<any>(this.apiUrl + 'login', credentials)
       .pipe(
         tap(response => {
+          this.loggedInSubject.next(true);
           // Stocker le token JWT reçu de l'API .NET
           localStorage.setItem(this.TOKEN_KEY, response.token);
         })
@@ -56,14 +58,25 @@ export class AuthService {
   }
 
   logout(): void {
+    this.loggedInSubject.next(false);
     localStorage.removeItem(this.TOKEN_KEY);
+    // 2. Redirection vers la page d'accueil
+    this.router.navigate(['/home']); // 👈 Redirige vers la route '/home'
+
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+  isAuthenticated(): boolean | null{
+    if (isPlatformBrowser(this.platformId)) {
+      return !!localStorage.getItem(this.TOKEN_KEY);
+    }
+    return null;
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    // Vérifie si le code s'exécute dans un navigateur (et non sur le serveur)
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem(this.TOKEN_KEY);
+    }
+    return null;
   }
 }

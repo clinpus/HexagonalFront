@@ -19,9 +19,9 @@ export class CustmerComponent {
               private dialog: MatDialog) { }
 
   ngOnInit(): void {
-      this.custmerService.getCustmers().subscribe({
+      this.custmerService.getAllCustomers().subscribe({
         next: (data) => {
-          this.custmers = data;
+          this.custmers = data || [];
         },
         error: (err) => {
           console.error('Erreur lors du chargement des factures:', err);

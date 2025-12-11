@@ -1,0 +1,18 @@
+.horizontal-menu {
+  display: flex; /* Utilise Flexbox pour aligner horizontalement */
+  background-color: #333; /* Couleur d'arrière-plan */
+  padding: 10px;
+}
+
+.horizontal-menu a {
+  color: white; /* Couleur du texte des liens */
+  text-decoration: none; /* Supprime le soulignement */
+  padding: 5px 15px;
+  margin: 0 5px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.horizontal-menu a:hover {
+  background-color: #555;
+}

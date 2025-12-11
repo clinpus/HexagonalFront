@@ -23,9 +23,9 @@ export class InvoiceComponent implements OnInit {
 
   ngOnInit(): void {
     // Appel du service pour charger les données au démarrage
-    this.invoiceService.getInvoices().subscribe({
+    this.invoiceService.getAllInvoices().subscribe({
       next: (data) => {
-        this.invoices = data;
+        this.invoices = data || [];
       },
       error: (err) => {
         console.error('Erreur lors du chargement des factures:', err);

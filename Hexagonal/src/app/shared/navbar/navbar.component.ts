@@ -2,7 +2,7 @@
 
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service'; 
 import { Observable } from 'rxjs';
 
@@ -15,9 +15,16 @@ import { Observable } from 'rxjs';
 })
 export class NavbarComponent {
   private authService = inject(AuthService);
-  isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$; 
+  private router = inject(Router);
+  
+  isLoggedIn$: Observable<boolean> = this.authService.isLoggedIn$;
 
   logout(): void {
     this.authService.logout();
   }
+
+  login(): void {
+    this.router.navigate(['/login']);
+  }
+
 }
