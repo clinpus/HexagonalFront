@@ -21,7 +21,7 @@ jobs:
           lfs: false
 
       # ------------------------------------------------
-      # ÉTAPES AJOUTÉES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT
+      # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT (SUCCESS)
       # ------------------------------------------------
       - name: Setup Node 18
         uses: actions/setup-node@v3
@@ -37,12 +37,6 @@ jobs:
         working-directory: Hexagonal # Exécuter dans le répertoire du projet Angular
       # ------------------------------------------------
 
-      # ÉTAPE CLÉ : DÉFINIR LE CHEMIN ABSOLU
-      - name: Set Absolute Artifact Path
-        id: set_path
-        # GITHUB_WORKSPACE est la racine du dépôt. Nous ajoutons le chemin restant.
-        run: echo "ARTIFACT_PATH=$GITHUB_WORKSPACE/Hexagonal/dist/hexagonal/browser" >> $GITHUB_OUTPUT
-
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -51,12 +45,12 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           
-          # Paramètres pour le déploiement manuel :
-          app_location: "" # Vide pour éviter l'ambiguïté du chemin
+          # Paramètres de chemin standard (l'output est RELATIF à l'app_location)
+          app_location: "Hexagonal" 
           api_location: ""
-          # Utilise le chemin absolu forcé
-          output_location: ${{ steps.set_path.outputs.ARTIFACT_PATH }}
-          skip_app_build: true # Crucial
+          # Le chemin d'artefact est relatif à "Hexagonal"
+          output_location: "dist/hexagonal/browser"
+          skip_app_build: true # Crucial : Le build manuel a déjà été fait
           
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
