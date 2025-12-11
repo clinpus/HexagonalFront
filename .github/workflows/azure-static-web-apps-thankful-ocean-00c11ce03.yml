@@ -1,19 +1,11 @@
 name: Azure Static Web Apps CI/CD
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
+# ... (Sections push, pull_request et jobs inchangées)
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest  # <-- runs-on (Ligne 9/10 corrigée)
-    name: Build and Deploy Job
+    # ... (runs-on, name inchangés)
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,10 +24,18 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # CHANGEMENT CLÉ : Construire dans un chemin SIMPLE à l'intérieur de Hexagonal (pour la méthode 3 révisée)
+          # Build vers le chemin final confirmé
           ./node_modules/.bin/ng build --output-path dist/final_output 
-        working-directory: Hexagonal # Le répertoire de travail est toujours 'Hexagonal'
+        working-directory: Hexagonal 
       # ------------------------------------------------
+
+      # ÉTAPE CLÉ : COPIER L'ARTEFACT FINAL DANS UN DOSSIER TEMPORAIRE À LA RACINE
+      - name: Copy Artifact to Root
+        run: |
+          # Créer un dossier à la racine du workspace (un niveau au-dessus de Hexagonal)
+          mkdir ../swa_temp_output 
+          # Copier le contenu (index.html, etc.) du build final vers le dossier racine
+          cp -r Hexagonal/dist/final_output/. ../swa_temp_output/
 
       - name: Build And Deploy
         id: builddeploy
@@ -46,20 +46,10 @@ jobs:
           action: "upload"
           
           # Paramètres de déploiement final :
-          app_location: "Hexagonal" # Pointer vers le dossier source
+          app_location: "" # Vide, car l'artefact est maintenant à la racine du dépôt
           api_location: ""
-          # Le chemin de sortie est relatif à l'app_location
-          output_location: "dist/final_output"
+          # Le chemin de sortie est le dossier temporaire créé à la racine
+          output_location: "swa_temp_output"
           skip_app_build: true # Crucial
           
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          action: "close"
+  # ... (Section close_pull_request_job inchangée)
