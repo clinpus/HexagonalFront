@@ -1,27 +1,38 @@
 name: Azure Static Web Apps CI/CD
 
 on:
-# ... (Sections push, pull_request et jobs inchangées)
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - master
 
 jobs:
   build_and_deploy_job:
-    # ... (runs-on, name inchangés)
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest  # <-- runs-on (Ligne 9/10 corrigée)
+    name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v3
-        # ... (with: inchangé)
+        with:
+          submodules: true
+          lfs: false
 
       # ------------------------------------------------
       # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT
       # ------------------------------------------------
       - name: Setup Node 18
         uses: actions/setup-node@v3
-        # ... (with: node-version inchangé)
+        with:
+          node-version: 18
 
       - name: Install and Build Angular
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # CHANGEMENT CLÉ : Construire dans un chemin SIMPLE à l'intérieur de Hexagonal (pas de 'browser')
+          # CHANGEMENT CLÉ : Construire dans un chemin SIMPLE à l'intérieur de Hexagonal (pour la méthode 3 révisée)
           ./node_modules/.bin/ng build --output-path dist/final_output 
         working-directory: Hexagonal # Le répertoire de travail est toujours 'Hexagonal'
       # ------------------------------------------------
@@ -41,4 +52,14 @@ jobs:
           output_location: "dist/final_output"
           skip_app_build: true # Crucial
           
-  # ... (Section close_pull_request_job inchangée)
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
+          action: "close"
