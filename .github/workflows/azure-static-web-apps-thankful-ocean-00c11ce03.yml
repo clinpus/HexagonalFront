@@ -21,7 +21,7 @@ jobs:
           lfs: false
 
       # ------------------------------------------------
-      # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT (SUCCESS)
+      # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR MANUELLEMENT
       # ------------------------------------------------
       - name: Setup Node 18
         uses: actions/setup-node@v3
@@ -32,9 +32,9 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Build vers le chemin final confirmé
-          ./node_modules/.bin/ng build --output-path dist/hexagonal/browser
-        working-directory: Hexagonal # Exécuter dans le répertoire du projet Angular
+          # CHANGEMENT CLÉ : La sortie est déplacée à la racine du dépôt (un niveau au-dessus de Hexagonal)
+          ./node_modules/.bin/ng build --output-path ../output_swa 
+        working-directory: Hexagonal # Le répertoire de travail est toujours 'Hexagonal'
       # ------------------------------------------------
 
       - name: Build And Deploy
@@ -45,11 +45,11 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           
-          # Paramètres pour le déploiement manuel :
-          app_location: "" # Laissez vide
+          # Paramètres de déploiement final :
+          app_location: "" # Vide, car l'artefact est maintenant à la racine du dépôt
           api_location: ""
-          # CORRECTION FINALE : Chemin absolu écrit en dur pour contourner les problèmes de parsing SWA
-          output_location: "/home/runner/work/HexagonalFront/HexagonalFront/Hexagonal/dist/hexagonal/browser"
+          # Le chemin de sortie est le nouveau dossier à la racine + le sous-dossier Angular
+          output_location: "output_swa/browser"
           skip_app_build: true # Crucial
           
   close_pull_request_job:
