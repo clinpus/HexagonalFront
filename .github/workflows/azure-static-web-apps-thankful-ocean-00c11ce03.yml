@@ -10,19 +10,16 @@ on:
       - master
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    runs-on: ubuntu-latest  # runs-on est bien indenté
-    name: Build and Deploy Job
+  # NOUVEAU JOB 1 : CONSTRUCTION ET UPLOAD D'ARTEFACT
+  build:
+    runs-on: ubuntu-latest
+    name: Build Angular App
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
           lfs: false
 
-      # ------------------------------------------------
-      # ÉTAPES POUR INSTALLER ET BUILDER ANGULAR
-      # ------------------------------------------------
       - name: Setup Node 18
         uses: actions/setup-node@v3
         with:
@@ -32,20 +29,35 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Build vers le chemin final dans le dossier Hexagonal
-          ./node_modules/.bin/ng build --output-path dist/final_output 
+          # Build vers le dossier de l'artefact
+          ./node_modules/.bin/ng build --output-path dist/final_output
         working-directory: Hexagonal 
-      # ------------------------------------------------
 
-      # SOLUTION AU BUG SWA : COPIER L'ARTEFACT FINAL À LA RACINE
-      - name: Copy Artifact to Root
-        run: |
-          # Créer un dossier à la racine du workspace
-          mkdir ../swa_temp_output 
-          # Copier le contenu du build final vers le dossier racine
-          cp -r Hexagonal/dist/final_output/. ../swa_temp_output/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: angular-frontend
+          # L'artefact est le contenu du dossier de sortie (Hexagonal/dist/final_output)
+          path: Hexagonal/dist/final_output
 
-      - name: Build And Deploy
+  # NOUVEAU JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build # Dépend du succès du job de build
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    name: Deploy to Azure SWA
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: angular-frontend
+          # Le téléchargement place l'artefact (index.html, etc.) directement à la racine du workspace.
+          path: .
+
+      - name: Deploy to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -53,12 +65,12 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           
-          # Paramètres de déploiement final :
-          app_location: "" # Vide, car l'artefact est à la racine du dépôt
+          # Paramètres de déploiement simplifiés :
+          app_location: "" # Vide
           api_location: ""
-          # Le chemin de sortie est le dossier temporaire créé
-          output_location: "swa_temp_output"
-          skip_app_build: true 
+          # Le chemin d'artefact est maintenant la racine du workspace.
+          output_location: "." 
+          skip_app_build: true
           
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
