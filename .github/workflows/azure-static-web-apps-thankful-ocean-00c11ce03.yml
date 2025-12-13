@@ -26,7 +26,7 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Build dans le sous-dossier Hexagonal
+          # Build dans le sous-dossier Hexagonal/dist/final_output
           ./node_modules/.bin/ng build --output-path dist/final_output
         working-directory: Hexagonal 
 
@@ -34,7 +34,8 @@ jobs:
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          path: Hexagonal/dist/final_output
+          # CORRECTION DÉFINITIVE : Pointe vers le sous-dossier 'browser'
+          path: Hexagonal/dist/final_output/browser
 
   # JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT
   deploy:
@@ -50,7 +51,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: angular-frontend
-          # L'artefact est téléchargé à la racine du workspace
+          # L'artefact (qui contient index.html à sa racine) est téléchargé à la racine du workspace.
           path: . 
 
       - name: Deploy to Azure Static Web Apps
@@ -67,7 +68,7 @@ jobs:
           output_location: "." # L'artefact est à la racine
           skip_app_build: true
           
-          # CORRECTIONS CLÉS POUR CONTOURNER LE BUG PERSISTANT DE CHEMIN :
+          # Paramètres pour forcer la reconnaissance statique :
           app_artifact_location: "." 
           is_static_export: true
           
