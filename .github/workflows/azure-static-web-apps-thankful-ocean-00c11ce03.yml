@@ -1,4 +1,4 @@
-name: Azure App Service CI/CD (Frontend)
+name: Azure Static Web App CI/CD (Frontend + API)
 
 on:
   push:
@@ -6,61 +6,73 @@ on:
       - master
 
 jobs:
+  # JOB 1 : CONSTRUCTION (Frontend Angular + Backend API)
   build:
     runs-on: ubuntu-latest
-    name: Build Angular App
+    name: Build Frontend and API
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node 18
+
+      - name: Setup Node 18 (pour Angular)
         uses: actions/setup-node@v3
         with:
           node-version: 18
+
+      - name: Setup .NET Core (pour l'API)
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' # Remplacez par votre version de .NET si elle est différente
+
+      # --- CONSTRUCTION FRONTEND (Angular) ---
       - name: Install and Build Angular
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Le chemin de sortie doit être le même que celui de l'upload
-          ./node_modules/.bin/ng build --output-path dist/final_output
+          ./node_modules/.bin/ng build --output-path dist/angular-output
         working-directory: Hexagonal 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4 
-        with:
-          name: angular-frontend
-          path: Hexagonal/dist/final_output/browser 
 
+      # --- CONSTRUCTION BACKEND (API .NET) ---
+      # Nous supposons que l'API est dans un sous-dossier 'API' dans 'Hexagonal'
+      - name: Publish .NET API
+        run: |
+          dotnet publish API -c Release -o ../api_output
+        working-directory: Hexagonal 
+        
+      # L'action de déploiement SWA utilisera les dossiers créés directement.
+
+
+  # JOB 2 : DÉPLOIEMENT SUR SWA (Frontend Angular + Backend API)
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    name: Deploy to Azure App Service (Final Attempt)
-    permissions:
-      id-token: write 
-      contents: read
+    name: Deploy to Static Web App
     
+    environment:
+      name: Production
+      url: ${{ steps.deploy.outputs.web_app_url }}
+      
     steps:
       - uses: actions/checkout@v3
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: angular-frontend
-          path: .
-      
-      # Retrait de l'étape de renommage : L'action de déploiement gère mieux le chemin.
-          
-      - name: Azure Login (OIDC)
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # CHANGEMENT CLÉ : Utiliser l'action de déploiement pour les applications web.
-      - name: Deploy Angular App to Azure Web App
-        uses: azure/webapps-deploy@v2
+      - name: Deploy to Azure Static Web Apps
+        id: deploy
+        uses: azure/static-web-apps-deploy@v1 
         with:
-          app-name: 'Hexagon'
-          # Le package est téléchargé à la racine du répertoire de l'action
-          package: '.'
-          resource-group-name: 'Hexagon_group' 
-          # AJOUT : Assurer que l'application est bien considérée comme une application web statique.
-          # Cette action n'a pas un paramètre 'index-document', nous allons tenter d'utiliser 'WEBSITE_NODE_DEFAULT_VERSION'
-          # pour s'assurer qu'un runtime est prêt à servir.
+          # Utilise le jeton que vous avez déjà dans vos secrets
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
+          
+          # PARAMÈTRES DE CONSTRUCTION :
+          
+          # 1. Dossier racine du projet (pour la SWA)
+          app_location: '/Hexagonal' 
+          
+          # 2. Chemin du Frontend (Angular)
+          output_location: 'dist/angular-output/browser' 
+          
+          # 3. Chemin du Backend (API)
+          # Le chemin est RELATIF à app_location ('/Hexagonal') et pointe vers la sortie de 'dotnet publish'
+          api_location: '../api_output' 
+          
+          # Indique à l'action que nous avons déjà construit les deux composants
+          skip_app_build: true 
+          skip_api_build: true
