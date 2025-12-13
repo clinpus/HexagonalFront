@@ -10,15 +10,12 @@ on:
       - master
 
 jobs:
-  # NOUVEAU JOB 1 : CONSTRUCTION ET UPLOAD D'ARTEFACT
+  # JOB 1 : CONSTRUCTION ET UPLOAD D'ARTEFACT
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true
-          lfs: false
 
       - name: Setup Node 18
         uses: actions/setup-node@v3
@@ -29,21 +26,20 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Build vers le dossier de l'artefact
           ./node_modules/.bin/ng build --output-path dist/final_output
         working-directory: Hexagonal 
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        # CORRECTION CLÉ : Mise à jour vers v4
+        uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          # L'artefact est le contenu du dossier de sortie (Hexagonal/dist/final_output)
           path: Hexagonal/dist/final_output
 
-  # NOUVEAU JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT
+  # JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT
   deploy:
     runs-on: ubuntu-latest
-    needs: build # Dépend du succès du job de build
+    needs: build 
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     name: Deploy to Azure SWA
     
@@ -51,24 +47,22 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        # CORRECTION CLÉ : Mise à jour vers v4
+        uses: actions/download-artifact@v4
         with:
           name: angular-frontend
-          # Le téléchargement place l'artefact (index.html, etc.) directement à la racine du workspace.
           path: .
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C111CE03 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           
-          # Paramètres de déploiement simplifiés :
-          app_location: "" # Vide
+          app_location: "" 
           api_location: ""
-          # Le chemin d'artefact est maintenant la racine du workspace.
           output_location: "." 
           skip_app_build: true
           
@@ -81,5 +75,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C111CE03 }}
           action: "close"
