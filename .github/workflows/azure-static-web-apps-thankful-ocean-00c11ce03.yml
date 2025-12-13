@@ -53,6 +53,13 @@ jobs:
           name: angular-frontend
           # L'artefact (qui contient index.html à sa racine) est téléchargé à la racine du workspace.
           path: . 
+      
+      # NOUVELLE ÉTAPE CRUCIALE : RENOMMER index.csr.html en index.html
+      - name: Rename Index File
+        run: |
+          # Le fichier est à la racine du workspace après le téléchargement
+          mv index.csr.html index.html
+          echo "index.csr.html renommé en index.html pour Azure SWA."
 
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
@@ -83,3 +90,4 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           action: "close"
+
