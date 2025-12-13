@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  # JOB 1 : CONSTRUCTION (Inchangé - Crée l'artefact)
+  # JOB 1 : CONSTRUCTION (CORRECTION outputMode + Chemin)
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
@@ -20,16 +20,18 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          ./node_modules/.bin/ng build --output-path dist_output
-        working-directory: Hexagonal
+          # COMMANDE CRITIQUE : Forcer le mode statique pour le déploiement SWA
+          ./node_modules/.bin/ng build --output-path dist/final_output --output-mode=static
+        working-directory: Hexagonal # Dossier racine de votre application
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          path: Hexagonal/dist_output # Chemin de l'artefact
+          # CHEMIN CORRIGÉ : L'outputMode=static met les fichiers dans le sous-dossier 'browser' du chemin de sortie spécifié.
+          path: Hexagonal/dist/final_output/browser 
           
-  # JOB 2 : DÉPLOIEMENT (Utilisation directe de l'artefact SWA)
+  # JOB 2 : DÉPLOIEMENT (Inchangé)
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -40,24 +42,15 @@ jobs:
       url: ${{ steps.deploy.outputs.web_app_url }}
       
     steps:
-      # Pas besoin de Checkout ici
-      # Pas besoin de Download Artifact ici
-      # Pas besoin de Renommer ici
-          
       - name: Deploy to Azure Static Web Apps
         id: deploy
         uses: azure/static-web-apps-deploy@v1 
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           
-          # Indique à SWA de TÉLÉCHARGER l'artefact du job précédent
           action: 'upload' 
-          
-          # PARAMÈTRES CRITIQUES
-          # Nom de l'artefact créé par le job 'build'
           app_artifact_location: 'angular-frontend' 
           
-          # Le reste est vide, car SWA utilise le contenu de l'artefact directement
           app_location: '/' 
           output_location: '/' 
           api_location: ''
