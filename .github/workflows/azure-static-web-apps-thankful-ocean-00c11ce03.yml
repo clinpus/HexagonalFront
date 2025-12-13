@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  # JOB 1 : CONSTRUCTION ET UPLOAD D'ARTEFACT (INCHANGÉ)
+  # JOB 1 : CONSTRUCTION ET UPLOAD D'ARTEFACT
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
@@ -33,7 +33,6 @@ jobs:
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          # Chemin corrigé vers le dossier 'browser'
           path: Hexagonal/dist/final_output/browser 
 
   # JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT VIA AZURE CLI
@@ -54,15 +53,13 @@ jobs:
 
       - name: Rename Index File
         run: |
-          # Renomme index.csr.html en index.html pour respecter le standard
           mv index.csr.html index.html
           echo "index.csr.html renommé en index.html."
           
-      # ÉTAPE CLÉ 1 : Configuration d'Azure CLI
+      # CORRECTION CLÉ : Ajout de la version @v1
       - name: Setup Azure CLI
-        uses: azure/setup-cli@v1
+        uses: azure/setup-cli@v1 
 
-      # ÉTAPE CLÉ 2 : Déploiement via Azure CLI (contourne le bug de taille)
       - name: Deploy Static Web App
         run: |
           az staticwebapp deploy \
