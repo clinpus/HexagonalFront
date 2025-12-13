@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure App Service CI/CD (Frontend)
 
 on:
   push:
@@ -26,6 +26,7 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
+          # Assurez-vous que ce chemin est correct :
           ./node_modules/.bin/ng build --output-path dist/final_output
         working-directory: Hexagonal 
 
@@ -33,14 +34,20 @@ jobs:
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
+          # Le chemin d'où l'artifact est récupéré
           path: Hexagonal/dist/final_output/browser 
 
-  # JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT (Retour à l'Action Standard)
+  # JOB 2 : DÉPLOIEMENT SUR AZURE APP SERVICE (OIDC)
   deploy:
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'push' || (github.event.action != 'closed')
-    name: Deploy to Azure SWA (Final)
+    name: Deploy to Azure App Service (Final)
+    
+    # Autorise l'accès pour l'authentification OIDC
+    permissions:
+      id-token: write 
+      contents: read
     
     steps:
       - uses: actions/checkout@v3
@@ -49,39 +56,26 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: angular-frontend
-          path: . 
-
+          path: . # Télécharge les fichiers du frontend à la racine du workspace
+          
       - name: Rename Index File
+        # Nécessaire pour les App Services si le build Angular produit index.csr.html
         run: |
           mv index.csr.html index.html
           echo "index.csr.html renommé en index.html."
-          
-      - name: Deploy to Azure Static Web Apps
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          action: "upload"
-          
-          # Paramètres pour Artefact à la Racine :
-          app_location: "" 
-          api_location: ""
-          output_location: "." 
-          skip_app_build: true
-          app_artifact_location: "." 
-          is_static_export: true
-          production_branch: master
-          deployment_environment: production
 
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
+      # ÉTAPE 1 : CONNEXION AZURE AVEC OIDC
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          action: "close"
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # ÉTAPE 2 : DÉPLOIEMENT VERS APP SERVICE
+      - name: Deploy Angular App to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'hexagon-hrezbcfmczbqdph0' # Nom de votre App Service
+          package: '.' # Déploie le contenu du dossier courant (votre frontend)
+          slot-name: 'Production'
