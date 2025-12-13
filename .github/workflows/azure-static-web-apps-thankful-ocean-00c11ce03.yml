@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  # JOB 1 : CONSTRUCTION (Inchangé - Crée l'artefact propre de 623 Ko)
+  # JOB 1 : CONSTRUCTION (Inchangé)
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
@@ -29,7 +29,7 @@ jobs:
           name: angular-frontend
           path: Hexagonal/dist_output/browser 
           
-  # JOB 2 : DÉPLOIEMENT (Retour au Download + Renommage + Chemins explicites)
+  # JOB 2 : DÉPLOIEMENT (CRITIQUE : Isolation du déploiement)
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -40,20 +40,21 @@ jobs:
       url: ${{ steps.deploy.outputs.web_app_url }}
       
     steps:
-      - uses: actions/checkout@v3 # Nécessaire si on n'utilise pas app_artifact_location
-      
-      - name: Download Artifact
+      - uses: actions/checkout@v3
+
+      - name: Download Artifact to dedicated folder
         uses: actions/download-artifact@v4
         with:
           name: angular-frontend
-          path: . # Télécharge les 623 Ko à la racine du workspace
+          path: ./build_output # <<< Télécharge l'artefact DANS ce sous-dossier
           
       - name: Prepare Index File (Rename/Replace)
         run: |
-          # Ces commandes fonctionnent maintenant car index.html/index.csr.html est à la racine
+          # Nous devons naviguer dans le dossier de téléchargement pour renommer
+          cd ./build_output
           rm -f index.html
           mv index.csr.html index.html
-          echo "Index file prepared."
+          echo "Index file prepared in ./build_output."
           
       - name: Deploy to Azure Static Web Apps
         id: deploy
@@ -61,13 +62,11 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           
-          # PARAMÈTRES CRITIQUES (Retour au mode classique pour éviter les 262 Mo)
           action: 'upload' 
           skip_app_build: true
           skip_api_build: true
           
-          # Indique à SWA que les fichiers sont à la racine du workspace
-          app_location: '/' 
-          output_location: '/' 
-          # On retire app_artifact_location pour forcer SWA à regarder le dossier local
+          # CRITIQUE : Dit à SWA de ne prendre que le contenu de ce dossier
+          app_location: '/build_output' 
+          output_location: '/build_output' # Assure que SWA regarde uniquement ici
           api_location: ''
