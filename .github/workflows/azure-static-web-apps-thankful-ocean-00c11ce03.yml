@@ -56,7 +56,7 @@ jobs:
           mv index.csr.html index.html
           echo "index.csr.html renommé en index.html."
           
-      # CORRECTION CLÉ : Ajout de la version @v1
+      # CORRECTION APPLIQUÉE : Utilisation de la version stable @v1
       - name: Setup Azure CLI
         uses: azure/setup-cli@v1 
 
