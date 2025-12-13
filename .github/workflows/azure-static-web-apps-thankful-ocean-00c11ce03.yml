@@ -26,7 +26,6 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Build dans le sous-dossier Hexagonal/dist/final_output
           ./node_modules/.bin/ng build --output-path dist/final_output
         working-directory: Hexagonal 
 
@@ -34,13 +33,13 @@ jobs:
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          # CORRECTION DÉFINITIVE : Pointe vers le sous-dossier 'browser'
-          path: Hexagonal/dist/final_output/browser
+          # Chemin corrigé vers le dossier 'browser'
+          path: Hexagonal/dist/final_output/browser 
 
   # JOB 2 : TÉLÉCHARGEMENT ET DÉPLOIEMENT
   deploy:
     runs-on: ubuntu-latest
-    needs: build # Dépend du succès du job de build
+    needs: build
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     name: Deploy to Azure SWA
     
@@ -51,13 +50,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: angular-frontend
-          # L'artefact (qui contient index.html à sa racine) est téléchargé à la racine du workspace.
           path: . 
-      
-      # NOUVELLE ÉTAPE CRUCIALE : RENOMMER index.csr.html en index.html
+
+      # ÉTAPE CRUCIALE : RENOMMER index.csr.html en index.html
       - name: Rename Index File
         run: |
-          # Le fichier est à la racine du workspace après le téléchargement
           mv index.csr.html index.html
           echo "index.csr.html renommé en index.html pour Azure SWA."
 
@@ -72,13 +69,15 @@ jobs:
           # Configuration pour Artefact à la Racine :
           app_location: "" 
           api_location: ""
-          output_location: "." # L'artefact est à la racine
+          output_location: "." 
           skip_app_build: true
           
-          # Paramètres pour forcer la reconnaissance statique :
+          # Paramètres agressifs pour contourner les bugs SWA :
           app_artifact_location: "." 
           is_static_export: true
-          
+          production_branch: master
+          deployment_environment: production
+
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
@@ -90,4 +89,3 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           action: "close"
-
