@@ -61,8 +61,13 @@ jobs:
       - name: Rename Index File
         # Renommage obligatoire si Angular utilise index.csr.html et non index.html
         run: |
-          mv index.csr.html index.html
-          echo "index.csr.html renommé en index.html."
+          # Vérifiez si index.csr.html existe avant de le renommer
+          if [ -f index.csr.html ]; then
+            mv index.csr.html index.html
+            echo "index.csr.html renommé en index.html."
+          else
+            echo "index.csr.html non trouvé. Poursuite avec index.html."
+          fi
 
       # ÉTAPE 1 : CONNEXION AZURE AVEC OIDC
       - name: Azure Login (OIDC)
@@ -78,4 +83,6 @@ jobs:
         with:
           app-name: 'hexagon-hrezbcfmczbqdph0' # Nom de votre App Service
           package: '.' # Déploie le contenu du dossier courant (votre frontend)
-          slot-name: 'Production'
+          slot-name: 'Production' 
+          # NOUVEAU : Forcer la portée de l'abonnement
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
