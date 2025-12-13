@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  # JOB 1 : CONSTRUCTION (Inchangé - Crée l'artefact)
+  # JOB 1 : CONSTRUCTION (Inchangé)
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
@@ -20,54 +20,16 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # Mode statique pour créer l'index.html
-          ./node_modules/.bin/ng build --output-path dist/final_output --output-mode=static
+          ./node_modules/.bin/ng build --output-path dist_output --output-mode=static
         working-directory: Hexagonal
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          # Chemin corrigé suite à l'outputMode=static
-          path: Hexagonal/dist/final_output/browser 
+          path: Hexagonal/dist_output/browser 
           
-  # JOB 2 : DÉPLOIEMENT (Utilisation de l'artefact SWA - Recombinaison des paramètres)
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    name: Deploy to Static Web App
-    
-    environment:
-      name: Production
-      url: ${{ steps.deploy.outputs.web_app_url }}
-      
-    steps:
-      - name: Deploy to Azure Static Web Apps
-        id: deploy
-        uses: azure/static-web-apps-deploy@v1 
-        with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          
-          # NOUVEAU/RÉINTÉGRÉ : Résout l'erreur 'deployment_action was not provided'
-          action: 'upload' 
-          
-          # Indique quel artefact télécharger
-          app_artifact_location: 'angular-frontend' 
-          
-          # CRITIQUE : Désactive le moteur de build Oryx d'Azure
-          skip_app_build: true
-          skip_api_build: true
-          
-          # Chemins conservés pour la validité du schéma
-          app_location: '/' 
-          output_location: '/' 
-          api_location: ''
-
-name: Deploy Frontend (Angular) to SWA
-
-# ... (Job 'build' inchangé : il garantit la création de l'artefact)
-
-  # JOB 2 : DÉPLOIEMENT (Download + Renommage Forcé)
+  # JOB 2 : DÉPLOIEMENT (Syntaxe RUN corrigée et simplifiée)
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -86,22 +48,16 @@ name: Deploy Frontend (Angular) to SWA
           name: angular-frontend
           path: .
           
-      # ÉTAPE CLÉ DE RENOMMAGE ET SUPPRESSION
-      - name: Ensure Correct Index File
+      # CORRECTION DE SYNTAXE : Utilisation de && pour chaîner les commandes
+      - name: Prepare Index File (Rename/Replace)
         run: |
-          # 1. Suppression du fichier index.html de redirection s'il existe
-          if [ -f index.html ]; then
-            rm index.html
-            echo "Old index.html (redirect page) removed."
-          fi
+          # Tentative de suppression de l'ancien index.html (la redirection)
+          rm -f index.html
+          echo "Old index.html (if present) removed."
           
-          # 2. Renommage du fichier d'entrée Angular (index.csr.html)
-          if [ -f index.csr.html ]; then
-            mv index.csr.html index.html
-            echo "index.csr.html renommé en index.html (point d'entrée Angular)."
-          else
-            echo "ATTENTION: index.csr.html non trouvé. Le déploiement pourrait échouer."
-          fi
+          # Renommage du véritable index Angular
+          mv index.csr.html index.html
+          echo "index.csr.html renamed to index.html."
           
       - name: Deploy to Azure Static Web Apps
         id: deploy
