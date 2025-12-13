@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  # JOB 1 : CONSTRUCTION (Chemin de l'artefact FINAL - Inchangé)
+  # JOB 1 : CONSTRUCTION (Inchangé - Crée l'artefact)
   build:
     runs-on: ubuntu-latest
     name: Build Angular App
@@ -20,7 +20,7 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          # COMMANDE CRITIQUE : Force le mode statique pour l'output
+          # Mode statique pour créer l'index.html
           ./node_modules/.bin/ng build --output-path dist/final_output --output-mode=static
         working-directory: Hexagonal
         
@@ -28,10 +28,10 @@ jobs:
         uses: actions/upload-artifact@v4 
         with:
           name: angular-frontend
-          # CHEMIN VERS LE DOSSIER CONTENANT INDEX.HTML
+          # Chemin corrigé suite à l'outputMode=static
           path: Hexagonal/dist/final_output/browser 
           
-  # JOB 2 : DÉPLOIEMENT (Suppression de 'action: upload' pour laisser SWA utiliser l'artefact)
+  # JOB 2 : DÉPLOIEMENT (Utilisation de l'artefact SWA - Recombinaison des paramètres)
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -42,22 +42,23 @@ jobs:
       url: ${{ steps.deploy.outputs.web_app_url }}
       
     steps:
-      # Pas besoin de Checkout, Download, ou Rename
-      
       - name: Deploy to Azure Static Web Apps
         id: deploy
         uses: azure/static-web-apps-deploy@v1 
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
           
-          # PARAMÈTRES CRITIQUES (Méthode préférée pour le 2-stage build)
-          # Indique à SWA de prendre l'artefact créé par le job précédent
+          # NOUVEAU/RÉINTÉGRÉ : Résout l'erreur 'deployment_action was not provided'
+          action: 'upload' 
+          
+          # Indique quel artefact télécharger
           app_artifact_location: 'angular-frontend' 
           
-          # Suppression de action: 'upload' qui semble perturber la logique de téléchargement de l'artefact.
+          # CRITIQUE : Désactive le moteur de build Oryx d'Azure
+          skip_app_build: true
+          skip_api_build: true
           
-          # Les chemins ci-dessous sont ignorés par SWA lorsqu'il utilise app_artifact_location, 
-          # mais doivent être présents pour la validité :
+          # Chemins conservés pour la validité du schéma
           app_location: '/' 
           output_location: '/' 
           api_location: ''
