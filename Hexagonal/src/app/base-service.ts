@@ -31,4 +31,14 @@ export abstract class BaseService {
     // Appel normal dans le navigateur
     return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
   }
+
+  protected post<T>(endpoint: string, data: any): Observable<T | any> {
+    if (!this.isBrowser) {
+      console.log('Skipping API POST call on server.');
+      return of(undefined); 
+    }
+    
+    // Appel normal dans le navigateur
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, data);
+  }
 }
