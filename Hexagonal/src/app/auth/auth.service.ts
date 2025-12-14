@@ -6,7 +6,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router'; 
 import { isPlatformBrowser } from '@angular/common';
-import { environment } from '../environments/environment';
+import { environment } from '../../environments/environment';
 // Importez vos interfaces pour les données de connexion/token
 
 @Injectable({
