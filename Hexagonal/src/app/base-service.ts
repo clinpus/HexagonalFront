@@ -2,12 +2,14 @@ import { isPlatformBrowser } from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import { Inject, Injectable, PLATFORM_ID } from "@angular/core";
 import { Observable, of } from "rxjs";
+import { environment } from "./environments/environment"; // ⬅️ IMPORTATION
 
 @Injectable({ // ⬅️ AJOUTEZ CE DÉCORATEUR
   providedIn: 'root'
 })
 export abstract class BaseService {
-  protected apiUrl = 'https://localhost:7147/api';
+  
+  protected apiUrl = environment.apiUrl; 
   protected isBrowser: boolean;
 
   // Injection du HttpClient et de la plateforme
