@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router'; 
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../environments/environment';
 // Importez vos interfaces pour les données de connexion/token
 
 @Injectable({
@@ -19,7 +20,7 @@ export class AuthService {
    // 1. Injecter le token d'identification de la plateforme
   //private platformId = inject(PLATFORM_ID); 
   
-  private apiUrl = 'https://localhost:7147/api/auth/'; // Endpoint .NET
+  private apiUrl = environment.apiUrl; 
   private readonly TOKEN_KEY = 'auth_token';
 
     // 1. Déclarez le BehaviorSubject pour suivre l'état
