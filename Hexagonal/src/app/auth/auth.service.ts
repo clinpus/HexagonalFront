@@ -20,7 +20,7 @@ export class AuthService {
    // 1. Injecter le token d'identification de la plateforme
   //private platformId = inject(PLATFORM_ID); 
   
-  private apiUrl = environment.apiUrl; 
+  private apiUrl = environment.apiUrl + '/Auth/'; 
   private readonly TOKEN_KEY = 'auth_token';
 
     // 1. Déclarez le BehaviorSubject pour suivre l'état
