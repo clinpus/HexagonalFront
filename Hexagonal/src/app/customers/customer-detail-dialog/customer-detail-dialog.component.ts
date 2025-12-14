@@ -1,19 +1,19 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialogActions,MatDialogContent } from '@angular/material/dialog';
-import { Custmer } from '../../models/custmer';
+import { Customer } from '../../models/customer';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'detail-custmer',
+  selector: 'detail-customer',
   standalone: true, 
   imports: [CommonModule, MatDialogContent, MatDialogActions, MatDialogModule ], 
-  templateUrl: './custmer-detail-dialog.component.html', 
-  styleUrl: './custmer-detail-dialog.component.css'
+  templateUrl: './customer-detail-dialog.component.html', 
+  styleUrl: './customer-detail-dialog.component.css'
 })
-export class CustmerDetailDialogComponent {
+export class CustomerDetailDialogComponent {
   constructor(
-    public dialogRef: MatDialogRef<CustmerDetailDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Custmer
+    public dialogRef: MatDialogRef<CustomerDetailDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Customer
   ) {}
 
   onClose(): void {

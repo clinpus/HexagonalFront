@@ -17,10 +17,10 @@ export const routes: Routes = [
         canActivate: [AuthGuard] // C'est ici que la vérification est effectuée
     },
     {
-        path: 'custmers',
+        path: 'customers',
         // Utiliser loadComponent pour le lazy loading des composants standalone
-        loadComponent: () => import('./custmers/custmer/custmer.component')
-                               .then(c => c.CustmerComponent), 
+        loadComponent: () => import('./customers/customer/customer.component')
+                               .then(c => c.CustomerComponent), 
         canActivate: [AuthGuard]
     },
     { path: '', redirectTo: '/login', pathMatch: 'full' }, 

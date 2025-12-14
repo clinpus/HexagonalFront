@@ -6,11 +6,11 @@ import { Injectable } from '@angular/core';
 @Injectable({ // ⬅️ AJOUTEZ CE DÉCORATEUR
   providedIn: 'root'
 })
-export class CustmerService extends BaseService {
+export class CustomerService extends BaseService {
   
   getAllCustomers(): Observable<any[]> {
     // Appelle la méthode get() de la classe de base
-    return this.get<any[]>('custmers'); 
+    return this.get<any[]>('customers'); 
   }
 
 }

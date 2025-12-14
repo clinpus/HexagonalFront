@@ -1,0 +1,35 @@
+
+<div class="container">
+  <h2>Liste des customers</h2>
+
+  <p *ngIf="errorMessage">
+    {{ errorMessage }}
+  </p>
+  <p *ngIf="customers.length === 0">
+    Aucun Client trouvée. Veuillez vérifier la connexion à l'API.
+  </p>
+  <table *ngIf="customers.length > 0" class="customer-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>email</th>
+        <th>Tel</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let customer of customers">
+        <td>{{ customer.id }}</td>
+        <td>{{ customer.firstName }}</td> 
+        <td>{{ customer.lastName }}</td> 
+        <td>{{ customer.email }}</td>
+        <td>{{ customer.tel }}</td> 
+        <td>
+          <button (click)="viewDetails(customer.id)">Détails</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
