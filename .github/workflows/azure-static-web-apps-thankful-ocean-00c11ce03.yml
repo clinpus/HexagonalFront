@@ -1,48 +1,72 @@
-name: Azure Static Web Apps CI/CD
+name: Deploy Frontend (Angular) to SWA
 
 on:
   push:
     branches:
       - master
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - master
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+  # JOB 1 : CONSTRUCTION (Inchangé)
+  build:
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Build Angular App
     steps:
       - uses: actions/checkout@v3
+      - name: Setup Node 18
+        uses: actions/setup-node@v3
         with:
-          submodules: true
-          lfs: false
-      - name: Build And Deploy
-        id: builddeploy
-        uses: Azure/static-web-apps-deploy@v1
+          node-version: 18
+      - name: Install and Build Angular
+        run: |
+          npm install
+          chmod +x ./node_modules/.bin/ng
+          ./node_modules/.bin/ng build --output-path dist_output --output-mode=static
+        working-directory: Hexagonal
+        
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4 
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "Hexagonal" # App source code path  test
-          api_location: "" # Api source code path - optional
-          output_location: "dist/hexagonal" # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+          name: angular-frontend
+          path: Hexagonal/dist_output/browser 
+          
+  # JOB 2 : DÉPLOIEMENT (CRITIQUE : Isolation du déploiement)
+  deploy:
     runs-on: ubuntu-latest
-    name: Close Pull Request Job
+    needs: build
+    name: Deploy to Static Web App
+    
+    environment:
+      name: Production
+      url: ${{ steps.deploy.outputs.web_app_url }}
+      
     steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
+      - uses: actions/checkout@v3
+
+      - name: Download Artifact to dedicated folder
+        uses: actions/download-artifact@v4
+        with:
+          name: angular-frontend
+          path: ./build_output # <<< Télécharge l'artefact DANS ce sous-dossier
+          
+      - name: Prepare Index File (Rename/Replace)
+        run: |
+          # Nous devons naviguer dans le dossier de téléchargement pour renommer
+          cd ./build_output
+          rm -f index.html
+          mv index.csr.html index.html
+          echo "Index file prepared in ./build_output."
+          
+      - name: Deploy to Azure Static Web Apps
+        id: deploy
+        uses: azure/static-web-apps-deploy@v1 
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_THANKFUL_OCEAN_00C11CE03 }}
-          action: "close"
-
-
+          
+          action: 'upload' 
+          skip_app_build: true
+          skip_api_build: true
+          
+          # CRITIQUE : Dit à SWA de ne prendre que le contenu de ce dossier
+          app_location: '/build_output' 
+          output_location: '/build_output' # Assure que SWA regarde uniquement ici
+          api_location: ''
