@@ -1,7 +1,7 @@
 <nav class="horizontal-menu">
     <a routerLink="/home">Home</a>
     <a routerLink="/invoices">Invoices</a>
-    <a routerLink="/custmers">Custmers</a>
+    <a routerLink="/customers">Customers</a>
     <button *ngIf="(isLoggedIn$| async) === true" (click)="logout()">Déconnexion</button>
     <button *ngIf="(isLoggedIn$ | async) === false" (click)="login()">Connexion</button>
 

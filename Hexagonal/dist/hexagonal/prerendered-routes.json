@@ -1,7 +1,7 @@
 {
   "routes": {
     "/": {},
-    "/custmers": {},
+    "/customers": {},
     "/home": {},
     "/invoices": {},
     "/login": {}
