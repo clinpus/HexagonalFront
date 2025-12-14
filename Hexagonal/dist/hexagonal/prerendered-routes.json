@@ -1,9 +1,0 @@
-{
-  "routes": {
-    "/": {},
-    "/customers": {},
-    "/home": {},
-    "/invoices": {},
-    "/login": {}
-  }
-}
