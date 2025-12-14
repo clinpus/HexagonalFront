@@ -20,7 +20,7 @@ jobs:
         run: |
           npm install
           chmod +x ./node_modules/.bin/ng
-          ./node_modules/.bin/ng build --output-path dist_output --output-mode=static
+          ./node_modules/.bin/ng build --configuration production --output-path dist_output --output-mode=static
         working-directory: Hexagonal
         
       - name: Upload Artifact
@@ -70,3 +70,4 @@ jobs:
           app_location: '/build_output' 
           output_location: '/build_output' # Assure que SWA regarde uniquement ici
           api_location: ''
+
