@@ -29,8 +29,8 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
-.sass-cache/
+/Hexagonal/.angular/cache
+/Hexagonal/.sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log

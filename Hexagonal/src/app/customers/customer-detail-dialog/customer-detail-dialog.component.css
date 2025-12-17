@@ -1,0 +1,82 @@
+/* --- CONTENEUR PRINCIPAL --- */
+.customer-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Espace réduit entre les lignes pour éviter l'aspect massif */
+  padding: 15px 10px !important;
+  overflow-x: hidden !important; /* Supprime définitivement le scroll horizontal */
+  box-sizing: border-box;
+}
+
+/* --- STRUCTURE DES LIGNES (INPUTS) --- */
+.form-row {
+  display: flex;
+  gap: 12px; /* Espace entre les deux colonnes (Prénom/Nom) */
+  width: 100%;
+}
+
+.form-row mat-form-field {
+  flex: 1; /* Force les champs à partager l'espace à 50/50 */
+  min-width: 0; /* Empêche le débordement flex */
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* --- RÉDUCTION DE LA TAILLE DES INPUTS --- */
+/* On réduit la police et l'épaisseur pour que les inputs ne paraissent pas "énormes" */
+mat-form-field {
+  font-size: 13px; 
+}
+
+/* Réduction de la hauteur des champs "Outline" d'Angular Material */
+::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+  height: 48px !important; /* Hauteur plus élégante */
+}
+
+/* Aligner l'icône dans les champs */
+::ng-deep .mat-mdc-form-field-icon-suffix {
+  padding: 0 !important;
+}
+
+/* --- HARMONISATION DES BOUTONS --- */
+.dialog-actions {
+  padding: 16px 24px !important;
+  gap: 12px; /* Espace entre les boutons */
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #fafafa; /* Légère nuance pour séparer les actions */
+}
+
+/* Style commun pour forcer la MÊME TAILLE sur les deux boutons */
+.dialog-actions button {
+  min-width: 125px !important; /* Même largeur pour les deux */
+  height: 42px !important;      /* Même hauteur pour les deux */
+  padding: 0 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-radius: 6px; /* Coins légèrement arrondis pour le modernisme */
+}
+
+/* Ajustement spécifique pour l'icône dans le bouton */
+button mat-icon {
+  margin-right: 8px !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* --- EN-TÊTE --- */
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  margin: 0;
+  color: #3f51b5;
+  font-size: 1.25rem;
+}

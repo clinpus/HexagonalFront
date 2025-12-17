@@ -31,7 +31,7 @@ export class AuthService extends BaseService{
   }
 
   login(credentials: any): Observable<any> {
-    return this.post<any>('login', credentials)
+    return this.post<any>('Auth/login', credentials)
       .pipe(
         tap(response => {
           this.loggedInSubject.next(true);

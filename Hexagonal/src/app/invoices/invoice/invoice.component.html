@@ -1,5 +1,16 @@
 <div class="container">
   <h2>Liste des Factures</h2>
+   
+
+  <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="openAddInvoiceDialog()" 
+            style="margin-left: 20px;"
+        >
+            <mat-icon>add</mat-icon>
+            Ajouter une Facture
+  </button>
 
   <p *ngIf="invoices.length === 0">
     Aucune facture trouvée. Veuillez vérifier la connexion à l'API.

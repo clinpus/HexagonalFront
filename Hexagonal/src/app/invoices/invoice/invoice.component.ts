@@ -4,12 +4,19 @@ import { Invoice } from '../../models/invoice';
 import { InvoiceService } from '../invoice.service';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoiceDetailDialogComponent } from '../invoice-detail-dialog/invoice-detail-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { InvoiceDialogData } from '../invoice-detail-dialog/invoice-dialog-data';
 
 @Component({
   // **Définition du composant**
   selector: 'app-invoice',
-  standalone: true, // IMPORTANT : Indique que c'est un composant autonome
-  imports: [CommonModule], // On importe CommonModule pour les directives Angular
+  standalone: true, 
+  imports: [
+            CommonModule,
+            MatButtonModule, 
+            MatIconModule
+           ], 
   templateUrl: './invoice.component.html', // Pointeur vers le template
   styleUrl: './invoice.component.css' // Pointeur vers le style CSS
 })
@@ -34,16 +41,42 @@ export class InvoiceComponent implements OnInit {
     });
   }
 
+ openAddInvoiceDialog(): void {
+    const dialogRef = this.dialog.open(InvoiceDetailDialogComponent, {
+      width: '600px',      // Largeur fixe plus petite
+      maxHeight: '80vh',   // Maximum 80% de la hauteur de l'écran
+      data: { 
+        isNew: true 
+      } 
+    });
+
+    dialogRef.afterClosed().subscribe(newInvoiceData => {
+      if (newInvoiceData) {
+        console.log('Facture à ajouter au backend:', newInvoiceData);
+        this.saveNewInvoice(newInvoiceData); 
+      }
+    });
+  }
+
+  saveNewInvoice(invoice: any): void {
+
+    this.invoiceService.create(invoice).subscribe(() => {
+       alert('Facture ajoutée avec succès!');
+       //this.loadInvoices();
+     });
+  }
 
   viewDetails(invoiceId: number): void {
-    // 1. Récupérer l'objet facture complet (si ce n'est pas déjà le cas)
+
     const invoice = this.invoices.find(i => i.id === invoiceId);
 
     if (invoice) {
-      // 2. Ouvrir le dialogue et lui passer les données
       this.dialog.open(InvoiceDetailDialogComponent, {
-        width: '600px', // Taille de la pop-up
-        data: invoice // On passe l'objet Invoice à la modale via l'objet 'data'
+        width: '600px', 
+        data: {
+                isNew: !invoice, // true si on crée, false si on édite
+                invoice: invoice // On passe l'objet invoice ici
+              } as InvoiceDialogData 
       });
     }
   }

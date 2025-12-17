@@ -1,22 +1,33 @@
-
 <div class="container">
-  <h2>Liste des customers</h2>
+  <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1>Gestion des Clients</h1>
+    
+    <button mat-raised-button color="primary" (click)="openCustomerDialog(null, true)">
+      <mat-icon>add</mat-icon> Ajouter un client
+    </button>
+  </div>
 
-  <p *ngIf="errorMessage">
-    {{ errorMessage }}
-  </p>
-  <p *ngIf="customers.length === 0">
-    Aucun Client trouvée. Veuillez vérifier la connexion à l'API.
-  </p>
+  <mat-divider style="margin-bottom: 20px;"></mat-divider>
+
+  <h2>Liste des clients</h2>
+
+  <div *ngIf="errorMessage" class="error-banner" style="color: red; padding: 10px; margin-bottom: 10px; border: 1px solid red;">
+    <mat-icon style="vertical-align: middle;">error</mat-icon> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="customers.length === 0 && !errorMessage" class="empty-state">
+    <p>Aucun client trouvé. Veuillez vérifier la connexion à l'API ou ajouter un nouveau client.</p>
+  </div>
+
   <table *ngIf="customers.length > 0" class="customer-table">
     <thead>
       <tr>
         <th>ID</th>
-        <th>First Name</th>
-        <th>Last Name</th>
-        <th>email</th>
-        <th>Tel</th>
-        <th>Actions</th>
+        <th>Prénom</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Téléphone</th>
+        <th style="text-align: center;">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -26,8 +37,10 @@
         <td>{{ customer.lastName }}</td> 
         <td>{{ customer.email }}</td>
         <td>{{ customer.tel }}</td> 
-        <td>
-          <button (click)="viewDetails(customer.id)">Détails</button>
+        <td style="text-align: center;">
+          <button mat-icon-button color="accent" (click)="openCustomerDialog(customer, false)" title="Détails / Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
         </td>
       </tr>
     </tbody>

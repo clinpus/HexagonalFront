@@ -1,15 +1,108 @@
-<h2 mat-dialog-title>Détails de la Facture #{{ data.id }}</h2>
+ 
+ 
+ <div class="dialog-container">
+  <h2 mat-dialog-title>{{ data.isNew ? 'Nouvelle Facture' : 'Détails Facture' }}</h2>
 
-<mat-dialog-content>
-  <p><strong>Client :</strong> {{ data.clientName }}</p>
-  <p><strong>Numéro :</strong> {{ data.numero }}</p>
-  <p><strong>Date d'émission :</strong> {{ data.dateEmission | date }}</p>
-  <p><strong>Total TTC :</strong> {{ data.totalTTC | currency: 'EUR' }}</p>
-  <p><strong>Etat :</strong> {{ data.etat }}</p>
+  <form [formGroup]="invoiceForm">
+    <mat-dialog-content>
+      
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Sélectionner un Client</mat-label>
+          <mat-select formControlName="customerId">
+            <mat-option *ngFor="let customer of customers" [value]="customer.id">
+              {{ customer.firstName }} {{ customer.lastName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
 
-  </mat-dialog-content>
+        <mat-form-field appearance="outline">
+          <mat-label>Numéro de Facture</mat-label>
+          <input matInput formControlName="numero">
+        </mat-form-field>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Fermer</button>
-  <button mat-raised-button color="primary" [mat-dialog-close]="true">Éditer</button>
-</mat-dialog-actions>
+        <mat-form-field appearance="outline" *ngIf="!data.isNew">
+            <mat-label>Total TTC (Calculé)</mat-label>
+            <input matInput formControlName="totalTTC" readonly>
+            <mat-hint>Calculé par le système</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Date d'émission</mat-label>
+            <input matInput [matDatepicker]="pickerEmission" formControlName="dateEmission">
+            <mat-hint>JJ/MM/AAAA</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="pickerEmission"></mat-datepicker-toggle>
+            <mat-datepicker #pickerEmission></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Date d'échéance</mat-label>
+            <input matInput [matDatepicker]="pickerEcheance" formControlName="dateEcheance">
+            <mat-hint>JJ/MM/AAAA</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="pickerEcheance"></mat-datepicker-toggle>
+            <mat-datepicker #pickerEcheance></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>État de la facture</mat-label>
+            <mat-select formControlName="etat">
+                <mat-option *ngFor="let status of invoiceStates" [value]="status">
+                {{ status }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+      </div>
+
+      <div class="lines-section">
+        <div class="line-header">
+          <h3 style="margin:0">Lignes de produits</h3>
+          <button mat-stroked-button color="primary" type="button" (click)="addLine()" class="btn-add-line">
+            <mat-icon>add</mat-icon> Ajouter une ligne
+          </button>
+        </div>
+
+        <div formArrayName="invoiceLines">
+          <div *ngFor="let line of invoiceLinesFormArray.controls; let i=index" [formGroupName]="i" class="invoice-line-row">
+            
+            <mat-form-field appearance="outline" style="flex: 3;">
+              <mat-label>Description</mat-label>
+              <input matInput formControlName="description">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 1;">
+              <mat-label>Qté</mat-label>
+              <input matInput type="number" formControlName="quantity">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 1.5;">
+              <mat-label>Prix Unit.</mat-label>
+              <input matInput type="number" formControlName="unitPrice">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="flex: 1;">
+                <mat-label>TVA (%)</mat-label>
+                <mat-select formControlName="vatRate">
+                    <mat-option *ngFor="let rate of vatRates" [value]="rate">
+                        {{ rate }}%
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-icon-button color="warn" (click)="invoiceLinesFormArray.removeAt(i)" style="margin-top: 8px;">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="actions">
+      <button mat-button (click)="onClose()">Annuler</button>
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="invoiceForm.invalid">
+        {{ data.isNew ? 'Créer la facture' : 'Enregistrer' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>
+ 
